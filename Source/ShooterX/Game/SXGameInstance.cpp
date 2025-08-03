@@ -2,68 +2,56 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "SXUnrealObject.h"
 
+#include "Example/SXFlyable.h"
+#include "Example/SXPigeon.h"
+#include "Example/SXEagle.h"
+
 USXGameInstance::USXGameInstance()
 {
-	// UE_LOG(LogTemp, Log, TEXT("USXGameInstance::USXGameInstance() has been called."));
-
-    Name = TEXT("SXGameInstance's Class Default Object");
+	
 }
 
 void USXGameInstance::Init()
 {
-    Super::Init();
+	Super::Init();
 
-    /*
-    UE_LOG(LogTemp, Log, TEXT("USXGameInstance::Init() has been called."));
+	USXPigeon* Pigeon76 = NewObject<USXPigeon>();
+	Pigeon76->SetPigeonName(TEXT("Pigeon76"));
+	Pigeon76->SetPigeonID(76);
+	UE_LOG(LogTemp, Log, TEXT("[Pigeon76] Name: %s, ID: %d"), *Pigeon76->GetPigeonName(), Pigeon76->GetPigeonID());
 
-    UWorld* WorldInstance = GetWorld();
-    if (IsValid(WorldInstance) == true)
-    {
-        UKismetSystemLibrary::PrintString(WorldInstance, TEXT("Init() has been called."));
-    }
+	const FString SavedDirectoryPath = FPaths::Combine(FPlatformMisc::ProjectDir(), TEXT("Saved"));
+	const FString SavedFileName(TEXT("SerializedPigeon76Data.bin"));
+	FString AbsoluteFilePath = FPaths::Combine(*SavedDirectoryPath, *SavedFileName);
+	FPaths::MakeStandardFilename(AbsoluteFilePath);
 
-    checkf(IsValid(WorldInstance) == true, TEXT("WorldInstance is invalid."));
-    UKismetSystemLibrary::PrintString(this, TEXT("Init() has been called."));
-    
+	TArray<uint8> BufferForWriter;
+	FMemoryWriter MemoryWriterArchive(BufferForWriter);
+	Pigeon76->Serialize(MemoryWriterArchive);
 
-    UClass* CompiletimeClassInfo = StaticClass();
-    UClass* RuntimeClassInfo = GetClass();
+	TUniquePtr<FArchive> WriterArchive = TUniquePtr<FArchive>(IFileManager::Get().CreateFileWriter(*AbsoluteFilePath));
+	if (WriterArchive != nullptr)
+	{
+		*WriterArchive << BufferForWriter;
+		WriterArchive->Close();
 
-    checkf(CompiletimeClassInfo != RuntimeClassInfo, TEXT("CompiletimeClassInfo != RuntimeClassInfo"));
+		WriterArchive = nullptr;
+	}
 
-    UE_LOG(LogTemp, Log, TEXT("CompiletimeClassInfo->GetName(): %s"), *CompiletimeClassInfo->GetName());
-    UE_LOG(LogTemp, Log, TEXT("RuntimeClassInfo->GetName(): %s"), *RuntimeClassInfo->GetName());
+	TArray<uint8> BufferForReader;
+	TUniquePtr<FArchive> ReaderArchive = TUniquePtr<FArchive>(IFileManager::Get().CreateFileReader(*AbsoluteFilePath));
+	if (ReaderArchive != nullptr)
+	{
+		*ReaderArchive << BufferForReader;
+		ReaderArchive->Close();
 
-    Name = TEXT("SXGameInstance's Object");
+		ReaderArchive = nullptr;
+	}
 
-    UE_LOG(LogTemp, Log, TEXT("USXGameInstance::Name %s"), *(RuntimeClassInfo->GetDefaultObject<USXGameInstance>()->Name));
-    UE_LOG(LogTemp, Log, TEXT("USXGameInstance::Name %s"), *Name);
-    */
-
-    USXUnrealObject* USXObject01 = NewObject<USXUnrealObject>();
-    // 언리얼은 이런식으로 new 키워드를 안쓰고 NewObject<>() API를 사용해야 함.
-
-    UE_LOG(LogTemp, Log, TEXT("USXObject01's Name: %s"), *USXObject01->GetObjectName());
-    // 우리가 정의한 Getter()
-
-    FProperty* NameProperty = USXUnrealObject::StaticClass()->FindPropertyByName(TEXT("Name"));
-    FString CompiletimeUSObjectName;
-    if (nullptr != NameProperty)
-    {
-        NameProperty->GetValue_InContainer(USXObject01, &CompiletimeUSObjectName);
-        UE_LOG(LogTemp, Log, TEXT("CompiletimeUSObjectName: %s"), *CompiletimeUSObjectName);
-        // 리플렉션 시스템을 활용
-    }
-
-    USXObject01->HelloUnreal();
-    // 멤버 함수 호출.
-
-    UFunction* HelloUnrealFunction = USXObject01->GetClass()->FindFunctionByName(TEXT("HelloUnreal"));
-    if (nullptr != HelloUnrealFunction)
-    {
-        USXObject01->ProcessEvent(HelloUnrealFunction, nullptr);
-        // 리플렉션 시스템을 활용
-    }
+	FMemoryReader MemoryReaderArchive(BufferForReader);
+	USXPigeon* ClonedPigeon76 = NewObject<USXPigeon>();
+	ClonedPigeon76->Serialize(MemoryReaderArchive);
+	UE_LOG(LogTemp, Log, TEXT("[ClonedPigeon76] Name: %s, ID: %d"), *ClonedPigeon76->GetPigeonName(), ClonedPigeon76->GetPigeonID());
 }
 
 void USXGameInstance::Shutdown()
