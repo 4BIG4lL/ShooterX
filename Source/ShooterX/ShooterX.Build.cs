@@ -11,7 +11,10 @@ public class ShooterX : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore",
-			"EnhancedInput" });
+			"EnhancedInput",
+			"Json",
+			"JsonUtilities"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

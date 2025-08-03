@@ -6,6 +6,9 @@
 #include "Example/SXPigeon.h"
 #include "Example/SXEagle.h"
 
+#include "JsonObjectConverter.h"
+#include "UObject/SavePackage.h"
+
 USXGameInstance::USXGameInstance()
 {
 	
@@ -21,37 +24,34 @@ void USXGameInstance::Init()
 	UE_LOG(LogTemp, Log, TEXT("[Pigeon76] Name: %s, ID: %d"), *Pigeon76->GetPigeonName(), Pigeon76->GetPigeonID());
 
 	const FString SavedDirectoryPath = FPaths::Combine(FPlatformMisc::ProjectDir(), TEXT("Saved"));
-	const FString SavedFileName(TEXT("SerializedPigeon76Data.bin"));
+	const FString SavedFileName(TEXT("SerializedPigeon76JsonData.txt"));
 	FString AbsoluteFilePath = FPaths::Combine(*SavedDirectoryPath, *SavedFileName);
 	FPaths::MakeStandardFilename(AbsoluteFilePath);
 
-	TArray<uint8> BufferForWriter;
-	FMemoryWriter MemoryWriterArchive(BufferForWriter);
-	Pigeon76->Serialize(MemoryWriterArchive);
+	TSharedRef<FJsonObject> Pigeon76JsonObject = MakeShared<FJsonObject>();
+	FJsonObjectConverter::UStructToJsonObject(Pigeon76->GetClass(), Pigeon76, Pigeon76JsonObject);
 
-	TUniquePtr<FArchive> WriterArchive = TUniquePtr<FArchive>(IFileManager::Get().CreateFileWriter(*AbsoluteFilePath));
-	if (WriterArchive != nullptr)
+	FString WritedJsonString;
+	TSharedRef<TJsonWriter<TCHAR>> JsonWriterArchive = TJsonWriterFactory<TCHAR>::Create(&WritedJsonString);
+	if (FJsonSerializer::Serialize(Pigeon76JsonObject, JsonWriterArchive) == true)
 	{
-		*WriterArchive << BufferForWriter;
-		WriterArchive->Close();
-
-		WriterArchive = nullptr;
+		FFileHelper::SaveStringToFile(WritedJsonString, *AbsoluteFilePath);
 	}
 
-	TArray<uint8> BufferForReader;
-	TUniquePtr<FArchive> ReaderArchive = TUniquePtr<FArchive>(IFileManager::Get().CreateFileReader(*AbsoluteFilePath));
-	if (ReaderArchive != nullptr)
-	{
-		*ReaderArchive << BufferForReader;
-		ReaderArchive->Close();
+	FString ReadedJsonString;
+	FFileHelper::LoadFileToString(ReadedJsonString, *AbsoluteFilePath);
+	TSharedRef<TJsonReader<TCHAR>> JsonReaderArchive = TJsonReaderFactory<TCHAR>::Create(ReadedJsonString);
 
-		ReaderArchive = nullptr;
-	}
-
-	FMemoryReader MemoryReaderArchive(BufferForReader);
 	USXPigeon* ClonedPigeon76 = NewObject<USXPigeon>();
-	ClonedPigeon76->Serialize(MemoryReaderArchive);
-	UE_LOG(LogTemp, Log, TEXT("[ClonedPigeon76] Name: %s, ID: %d"), *ClonedPigeon76->GetPigeonName(), ClonedPigeon76->GetPigeonID());
+
+	TSharedPtr<FJsonObject> ClonedPigeon76JsonObject = nullptr;
+	if (FJsonSerializer::Deserialize(JsonReaderArchive, ClonedPigeon76JsonObject) == true)
+	{
+		if (FJsonObjectConverter::JsonObjectToUStruct(ClonedPigeon76JsonObject.ToSharedRef(), ClonedPigeon76->GetClass(), ClonedPigeon76) == true)
+		{
+			UE_LOG(LogTemp, Log, TEXT("[ClonedPigeon76] Name: %s, ID: %d"), *ClonedPigeon76->GetPigeonName(), ClonedPigeon76->GetPigeonID());
+		}
+	}
 }
 
 void USXGameInstance::Shutdown()
