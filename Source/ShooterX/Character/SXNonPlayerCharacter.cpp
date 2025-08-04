@@ -5,14 +5,31 @@
 #include "Animation/SXAnimInstance.h"
 #include "Component/SXStatusComponent.h"
 
+#include "UI/UW_HPText.h"
+#include "Component/SXHPTextWidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+
+#include "Character/SXPlayerCharacter.h"
+#include "Game/SXPlayerState.h"
+
 ASXNonPlayerCharacter::ASXNonPlayerCharacter()
 	: bIsNowAttacking(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.1f;
 
 	AIControllerClass = ASXAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	// ASXNonPlayerCharacter는 레벨에 배치되거나 새롭게 생성되면 SXAIController의 빙의가 자동으로 진행됨.
+
+	HPTextWidgetComponent = CreateDefaultSubobject<USXHPTextWidgetComponent>(TEXT("WidgetComponent"));
+	HPTextWidgetComponent->SetupAttachment(GetRootComponent());
+	HPTextWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	// WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	// Billboard 방식으로 보이나, 주인공 캐릭터를 가리게됨. 또한 UI와 멀어져도 동일한 크기가 유지됨.
+	HPTextWidgetComponent->SetWidgetSpace(EWidgetSpace::World);
+	HPTextWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ASXNonPlayerCharacter::BeginPlay()
@@ -31,6 +48,28 @@ void ASXNonPlayerCharacter::BeginPlay()
 	}
 }
 
+void ASXNonPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (IsValid(HPTextWidgetComponent) == true)
+	{
+		FVector WidgetComponentLocation = HPTextWidgetComponent->GetComponentLocation();
+		FVector LocalPlayerCameraLocation = UGameplayStatics::GetPlayerCameraManager(this, 0)->GetCameraLocation();
+		HPTextWidgetComponent->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(WidgetComponentLocation, LocalPlayerCameraLocation));
+	}
+}
+
+void ASXNonPlayerCharacter::SetHPTextWidget(UUW_HPText* InHPTextWidget)
+{
+	if (IsValid(InHPTextWidget) == true)
+	{
+		InHPTextWidget->InitializeHPTextWidget(StatusComponent);
+		StatusComponent->OnCurrentHPChanged.AddUObject(InHPTextWidget, &UUW_HPText::OnCurrentHPChange);
+		StatusComponent->OnMaxHPChanged.AddUObject(InHPTextWidget, &UUW_HPText::OnMaxHPChange);
+	}
+}
+
 float ASXNonPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
@@ -39,6 +78,15 @@ float ASXNonPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	if (StatusComponent->IsDead() == true)
 	{
 		ASXAIController* AIController = Cast<ASXAIController>(GetController());
+		ASXPlayerCharacter* DamageCauserCharacter = Cast<ASXPlayerCharacter>(DamageCauser);
+		if (IsValid(DamageCauserCharacter) == true)
+		{
+			ASXPlayerState* SPlayerState = Cast<ASXPlayerState>(DamageCauserCharacter->GetPlayerState());
+			if (IsValid(SPlayerState) == true)
+			{
+				SPlayerState->AddCurrentKillCount(1);
+			}
+		}
 		if (IsValid(AIController) == true)
 		{
 			AIController->EndAI();

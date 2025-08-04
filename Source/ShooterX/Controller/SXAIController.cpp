@@ -8,6 +8,8 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+
+
 //const float ASXAIController::PatrolRepeatInterval(3.f);
 const float ASXAIController::PatrolRadius(500.f);
 

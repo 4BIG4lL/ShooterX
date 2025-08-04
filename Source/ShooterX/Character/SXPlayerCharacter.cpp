@@ -7,6 +7,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/SXAnimInstance.h"
+#include "Particles/ParticleSystemComponent.h"
 
 ASXPlayerCharacter::ASXPlayerCharacter()
 {
@@ -34,6 +35,10 @@ ASXPlayerCharacter::ASXPlayerCharacter()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	CameraComponent->bUsePawnControlRotation = false;
+
+	ParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystemComponent"));
+	ParticleSystemComponent->SetupAttachment(RootComponent);
+	ParticleSystemComponent->SetAutoActivate(false);
 }
 
 void ASXPlayerCharacter::BeginPlay()

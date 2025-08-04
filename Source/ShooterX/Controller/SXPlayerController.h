@@ -4,6 +4,8 @@
 #include "GameFramework/PlayerController.h"
 #include "SXPlayerController.generated.h"
 
+class USXHUD;
+
 UCLASS()
 class SHOOTERX_API ASXPlayerController : public APlayerController
 {
@@ -12,10 +14,16 @@ class SHOOTERX_API ASXPlayerController : public APlayerController
 public:
 	ASXPlayerController();
 
+	USXHUD* GetHUDWidget() const { return HUDWidget; };
+
 protected:
 	// virtual void SetupInputComponent() override;
 	virtual void BeginPlay() override;
 
-// private:
-	// void LeftRight(float InAxisValue);
+private:
+	UPROPERTY();
+	TObjectPtr<USXHUD> HUDWidget;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess));
+	TSubclassOf<USXHUD> HUDWidgetClass;
 };

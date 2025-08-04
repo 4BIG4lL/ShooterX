@@ -7,6 +7,7 @@
 class UBlackboardData;
 class UBehaviorTree;
 
+
 UCLASS()
 class SHOOTERX_API ASXAIController : public AAIController
 {

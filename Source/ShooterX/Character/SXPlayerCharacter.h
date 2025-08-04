@@ -52,4 +52,15 @@ protected:
 
 #pragma endregion
 
+#pragma region KillCount
+
+public:
+	UParticleSystemComponent* GetParticleSystem() const { return ParticleSystemComponent; }
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UParticleSystemComponent> ParticleSystemComponent;
+
+#pragma endregion
+
 };
