@@ -7,6 +7,9 @@
 class ASXCharacterBase;
 class UCharacterMovementComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCheckHit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPostDead);
+
 UCLASS()
 class SHOOTERX_API USXAnimInstance : public UAnimInstance
 {
@@ -34,4 +37,18 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 bIsFalling : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	uint8 bIsDead : 1;
+
+private:
+	UFUNCTION()
+	void AnimNotify_CheckHit();
+
+	UFUNCTION()
+	void AnimNotify_PostDead();
+
+public:
+	FOnCheckHit OnCheckHit;
+	FOnPostDead OnPostDead;
 };

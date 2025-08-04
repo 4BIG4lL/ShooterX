@@ -13,7 +13,10 @@ public class ShooterX : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"Json",
-			"JsonUtilities"
+			"JsonUtilities",
+			"AIModule",
+			"NavigationSystem",
+			"GameplayTasks"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

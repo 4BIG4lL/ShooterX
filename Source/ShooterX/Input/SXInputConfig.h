@@ -22,5 +22,8 @@ public:
 	TObjectPtr<UInputAction> Jump;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UInputAction> AttackMelee;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UInputAction> ChangeView;
 };
