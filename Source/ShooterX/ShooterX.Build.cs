@@ -20,7 +20,9 @@ public class ShooterX : ModuleRules
 			"UMG"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			"ShooterXPlayGround"
+		});
 
 		PublicIncludePaths.AddRange(new string[] { "ShooterX" });
 	}

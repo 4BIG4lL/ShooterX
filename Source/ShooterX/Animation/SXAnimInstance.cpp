@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Character/SXNonPlayerCharacter.h"
 #include "Component/SXStatusComponent.h"
+#include "Character/SXPlayerCharacter.h"
 
 void USXAnimInstance::NativeInitializeAnimation()
 {
@@ -13,6 +14,8 @@ void USXAnimInstance::NativeInitializeAnimation()
 		OwnerCharacter = Cast<ASXCharacterBase>(OwnerPawn);
 		OwnerCharacterMovement = OwnerCharacter->GetCharacterMovement();
 	}
+
+	bIsUnarmed = true;
 }
 
 void USXAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -25,6 +28,7 @@ void USXAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		float GroundAcceleration = UKismetMathLibrary::VSizeXY(OwnerCharacterMovement->GetCurrentAcceleration());
 		bool bIsAccelerated = FMath::IsNearlyZero(GroundAcceleration) == false;
 		bShouldMove = (KINDA_SMALL_NUMBER < GroundSpeed) && (bIsAccelerated == true);
+		bIsUnarmed = OwnerCharacter->GetCurrentWeaponAttackAnimMontage() == nullptr ? true : false;
 		if (ASXNonPlayerCharacter* OwnerNPC = Cast<ASXNonPlayerCharacter>(OwnerCharacter))
 		{
 			bShouldMove = KINDA_SMALL_NUMBER < GroundSpeed;
@@ -34,6 +38,11 @@ void USXAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if (IsValid(OwnerCharacter->GetStatusComponent()) == true)
 		{
 			bIsDead = OwnerCharacter->GetStatusComponent()->IsDead();
+		}
+
+		if (APlayerController* OwnerPlayerController = Cast<APlayerController>(OwnerCharacter->GetController()))
+		{
+			NormalizedCurrentPitch = UKismetMathLibrary::NormalizeAxis(OwnerPlayerController->GetControlRotation().Pitch);
 		}
 	}
 }

@@ -9,6 +9,9 @@ class USpringArmComponent;
 class UCameraComponent;
 class USXInputConfig;
 class UInputMappingContext;
+class UCameraShakeBase;
+
+struct FStreamableHandle;
 
 UCLASS()
 class SHOOTERX_API ASXPlayerCharacter : public ASXCharacterBase
@@ -21,6 +24,8 @@ public:
 	ASXPlayerCharacter();
 
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
@@ -43,6 +48,20 @@ private:
 
 	void InputAttackMelee(const FInputActionValue& InValue);
 
+	void InputAttackRanged(const FInputActionValue& InValue);
+
+	void TryFire();
+
+	void InputToggleSelector(const FInputActionValue& InValue);
+
+	void InputStartFullAutoFire(const FInputActionValue& InValue);
+
+	void InputStopFullAutoFire(const FInputActionValue& InValue);
+
+	void InputStartIronSight(const FInputActionValue& InValue);
+
+	void InputEndIronSight(const FInputActionValue& InValue);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess))
 	TObjectPtr<USXInputConfig> PlayerCharacterInputConfig;
@@ -60,6 +79,48 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UParticleSystemComponent> ParticleSystemComponent;
+
+#pragma endregion
+
+#pragma region MeshMaterial
+
+protected:
+	FSoftObjectPath CurrentPlayerCharacterMeshMaterialPath01 = FSoftObjectPath();
+
+	FSoftObjectPath CurrentPlayerCharacterMeshMaterialPath02 = FSoftObjectPath();
+
+	TSharedPtr<FStreamableHandle> AssetStreamableHandle = nullptr;
+
+#pragma endregion
+
+#pragma region Effect
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UCameraShakeBase> AttackRangedCameraShake;
+
+#pragma endregion 
+
+#pragma region Selector
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float FirePerMinute = 600;
+
+	bool bIsFullAutoFire = false;
+
+	FTimerHandle FullAutoTimerHandle;
+
+	float TimeBetweenFire;
+
+#pragma endregion
+
+#pragma region IronSight
+
+protected:
+	float TargetFOV = 70.f;
+
+	float CurrentFOV = 70.f;
 
 #pragma endregion
 

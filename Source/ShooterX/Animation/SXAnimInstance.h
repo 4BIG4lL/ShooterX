@@ -41,6 +41,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	uint8 bIsDead : 1;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	uint8 bIsUnarmed : 1;
+
+	UPROPERTY(BlueprintReadOnly)
+	float NormalizedCurrentPitch;
+
 private:
 	UFUNCTION()
 	void AnimNotify_CheckHit();

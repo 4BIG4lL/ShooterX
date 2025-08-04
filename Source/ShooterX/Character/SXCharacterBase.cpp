@@ -7,12 +7,22 @@
 #include "Engine/EngineTypes.h"
 #include "Engine/DamageEvents.h"
 #include "Component/SXStatusComponent.h"
+#include "Item/SXWeapon.h"
 
 int32 ASXCharacterBase::ShowAttackMeleeDebug = 0;
 
 FAutoConsoleVariableRef CVarShowAttackMeleeDebug(
 	TEXT("SX.ShowAttackMeleeDebug"),
 	ASXCharacterBase::ShowAttackMeleeDebug,
+	TEXT(""),
+	ECVF_Cheat
+);
+
+int32 ASXCharacterBase::ShowAttackRangedDebug = 0;
+
+FAutoConsoleVariableRef CVarShowAttackRangedDebug(
+	TEXT("SX.ShowAttackRangedDebug"),
+	ASXCharacterBase::ShowAttackRangedDebug,
 	TEXT(""),
 	ECVF_Cheat
 );
@@ -191,4 +201,13 @@ void ASXCharacterBase::EndAttack(UAnimMontage* InMontage, bool bInterruped)
 	{
 		OnMeleeAttackMontageEndedDelegate.Unbind();
 	}
+}
+
+UAnimMontage* ASXCharacterBase::GetCurrentWeaponAttackAnimMontage() const
+{
+	if (IsValid(CurrentWeapon) == true)
+	{
+		return CurrentWeapon->GetAttackMontage();
+	}
+	return nullptr;
 }

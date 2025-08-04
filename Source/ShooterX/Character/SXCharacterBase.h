@@ -5,6 +5,7 @@
 #include "SXCharacterBase.generated.h"
 
 class USXStatusComponent;
+class ASXWeapon;
 
 UCLASS()
 class SHOOTERX_API ASXCharacterBase : public ACharacter
@@ -60,6 +61,13 @@ public:
 
 	UFUNCTION()
 	virtual void EndAttack(UAnimMontage* InMontage, bool bInterruped);
+
+	UAnimMontage* GetCurrentWeaponAttackAnimMontage() const;
+
+	UPROPERTY()
+	TObjectPtr<ASXWeapon> CurrentWeapon;
+
+	static int32 ShowAttackRangedDebug;
 
 #pragma endregion
 

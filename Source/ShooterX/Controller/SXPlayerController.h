@@ -26,4 +26,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess));
 	TSubclassOf<USXHUD> HUDWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = ASPlayerController, Meta = (AllowPrivateAccess))
+	TSubclassOf<UUserWidget> CrosshairWidgetClass;
 };
