@@ -301,7 +301,20 @@ void ASXPlayerCharacter::TryFire()
 			if (IsValid(HittedCharacter) == true)
 			{
 				FDamageEvent DamageEvent;
-				HittedCharacter->TakeDamage(10.f, DamageEvent, GetController(), this);
+				//HittedCharacter->TakeDamage(10.f, DamageEvent, GetController(), this);
+
+				FString BoneNameString = HitResult.BoneName.ToString();
+				//UKismetSystemLibrary::PrintString(this, BoneNameString);
+				//DrawDebugSphere(GetWorld(), HitResult.Location, 3.f, 16, FColor(255, 0, 0, 255), true, 20.f, 0U, 5.f);
+
+				if (true == BoneNameString.Equals(FString(TEXT("HEAD")), ESearchCase::IgnoreCase))
+				{
+					HittedCharacter->TakeDamage(100.f, DamageEvent, GetController(), this);
+				}
+				else
+				{
+					HittedCharacter->TakeDamage(10.f, DamageEvent, GetController(), this);
+				}
 			}
 		}
 

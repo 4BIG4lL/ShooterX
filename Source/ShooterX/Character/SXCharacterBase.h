@@ -20,6 +20,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 #pragma endregion
 
 #pragma region Attack
@@ -106,6 +108,25 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess))
 	TObjectPtr<USXStatusComponent> StatusComponent;
+
+#pragma endregion
+
+#pragma region Ragdoll
+
+private:
+	UFUNCTION()
+	void OnHittedRagdollRestoreTimerElapsed();
+
+protected:
+	FTimerHandle HittedRagdollRestoreTimer;
+
+	FTimerDelegate HittedRagdollRestoreTimerDelegate;
+
+	float TargetRagDollBlendWeight = 0.f;
+
+	float CurrentRagDollBlendWeight = 0.f;
+
+	bool bIsNowRagdollBlending = false;
 
 #pragma endregion
 
