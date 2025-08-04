@@ -3,6 +3,7 @@
 #include "Controller/SXAIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/SXAnimInstance.h"
+#include "Component/SXStatusComponent.h"
 
 ASXNonPlayerCharacter::ASXNonPlayerCharacter()
 	: bIsNowAttacking(false)
@@ -34,7 +35,8 @@ float ASXNonPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 {
 	float FinalDamageAmount = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	if (CurrentHP < KINDA_SMALL_NUMBER)
+	//if (CurrentHP < KINDA_SMALL_NUMBER)
+	if (StatusComponent->IsDead() == true)
 	{
 		ASXAIController* AIController = Cast<ASXAIController>(GetController());
 		if (IsValid(AIController) == true)

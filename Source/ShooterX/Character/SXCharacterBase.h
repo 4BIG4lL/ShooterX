@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "SXCharacterBase.generated.h"
 
+class USXStatusComponent;
+
 UCLASS()
 class SHOOTERX_API ASXCharacterBase : public ACharacter
 {
@@ -64,6 +66,7 @@ public:
 #pragma region HP
 
 public:
+	/*
 	float GetMaxHP() const { return MaxHP; }
 
 	float GetCurrentHP() const { return CurrentHP; }
@@ -73,8 +76,16 @@ public:
 	void SetCurrentHP(float InCurrentHP) { CurrentHP = InCurrentHP; }
 
 	bool IsDead() const { return bIsDead; }
+	*/
+
+	USXStatusComponent* GetStatusComponent() const { return StatusComponent; }
 
 protected:
+	UFUNCTION()
+	virtual void HandleOnPostCharacterDead();
+
+protected:
+	/*
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxHP = 100.f;
 
@@ -83,9 +94,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	uint8 bIsDead : 1;
+	*/
 
-	UFUNCTION()
-	virtual void HandleOnPostCharacterDead();
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Meta = (AllowPrivateAccess))
+	TObjectPtr<USXStatusComponent> StatusComponent;
 
 #pragma endregion
 

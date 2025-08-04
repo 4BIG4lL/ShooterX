@@ -16,7 +16,8 @@ public class ShooterX : ModuleRules
 			"JsonUtilities",
 			"AIModule",
 			"NavigationSystem",
-			"GameplayTasks"
+			"GameplayTasks",
+			"UMG"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
